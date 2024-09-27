@@ -38,6 +38,11 @@
                         e.stopPropagation(); // Prevent the folder from collapsing
                     });
                     element.prepend(checkbox);
+                    // Add click event to toggle checkbox when file name is clicked
+                    element.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent the folder from collapsing
+                        checkbox.checked = !checkbox.checked; // Toggle checkbox
+                    });
                 }
 
                 if (item.type === 'folder') {
