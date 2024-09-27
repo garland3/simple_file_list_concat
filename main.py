@@ -24,7 +24,7 @@ MAX_DEPTH = settings["max_depth"]
 MAX_FILES = settings["max_files"]
 IGNORE_EXTENSIONS = settings["ignore_extensions"]
 
-def get_files_recursive(base_dir, max_depth, current_depth=0, file_count=0):
+def get_files_recursive(base_dir, max_depth, current_depth=0, file_count=0, current_path=''):
     items = []
     if current_depth > max_depth or file_count >= MAX_FILES:
         return items, file_count
@@ -33,13 +33,15 @@ def get_files_recursive(base_dir, max_depth, current_depth=0, file_count=0):
             if file_count >= MAX_FILES:
                 break
             item_path = os.path.join(base_dir, item)
+            relative_path = os.path.join(current_path, item)
             file_ext = os.path.splitext(item)[1].lower()
             if file_ext in IGNORE_EXTENSIONS:
                 continue
             if os.path.isfile(item_path):
                 items.append({
                     'name': item,
-                    'type': 'file'
+                    'type': 'file',
+                    'path': relative_path
                 })
                 file_count += 1
             elif os.path.isdir(item_path):
@@ -48,7 +50,7 @@ def get_files_recursive(base_dir, max_depth, current_depth=0, file_count=0):
                     'type': 'folder',
                     'children': []
                 }
-                sub_items, file_count = get_files_recursive(item_path, max_depth, current_depth + 1, file_count)
+                sub_items, file_count = get_files_recursive(item_path, max_depth, current_depth + 1, file_count, relative_path)
                 folder['children'] = sub_items
                 items.append(folder)
     except PermissionError:
@@ -87,23 +89,25 @@ async def update_base_dir(new_base_dir: str = Form(...)):
 
 @app.post("/concatenate", response_class=HTMLResponse)
 async def concatenate_files(request: Request, selected_files: list = Form(...)):
-    print("Concatenating files:")
-    print(selected_files)  # This should now be a list of selected files
-    print("BASE_DIR:", BASE_DIR)
     content = ""
+    print("Starting to concatenate files...")
+    print(selected_files)
     for file in selected_files:
         file_path = BASE_DIR / file
         print(f"Processing file: {file}")
         if file_path.is_file():
-            print(f"File found: {file}")
             content += f"--- {file} ---\n"
             try:
-                content += file_path.read_text()
-                print(f"Successfully read file: {file}")
+                lines = file_path.read_text().splitlines()
+                print(f"File {file} has {len(lines)} lines.")
+                for i, line in enumerate(lines, 1):
+                    content += f"{i:4d} | {line}\n"
+                print(f"Length of file {file}: {len(lines)} lines.")
             except Exception as e:
                 content += f"Error reading file: {str(e)}\n"
-                print(f"Error reading file: {file}, Error: {str(e)}")
+                print(f"Error reading file {file}: {str(e)}")
             content += "\n\n"
+    print("Finished concatenating files.")
     return templates.TemplateResponse("result.html", {
         "request": request,
         "content": content,

@@ -14,7 +14,9 @@
         <h2>Select Files to Concatenate</h2>
         <!-- File structure will be populated here by JavaScript -->
     </div>
-    <button id="concatenate-btn" class="primary-button">Concatenate Selected Files</button>
+    <div class="button-container">
+        <button id="concatenate-btn" class="primary-button">Concatenate Selected Files</button>
+    </div>
 
     <script>
         async function fetchFileStructure() {
@@ -23,17 +25,19 @@
             return fileStructure;
         }
 
-        function createFileExplorer(structure, parentElement, selectedFiles) {
+        function createFileExplorer(structure, parentElement, selectedFiles, currentPath = '') {
             structure.forEach(item => {
                 const element = document.createElement('div');
                 element.textContent = item.name;
                 element.className = item.type;
 
+                const itemPath = currentPath ? `${currentPath}/${item.name}` : item.name;
+
                 if (item.type === 'file') {
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
-                    checkbox.value = item.name; // Store the file name
-                    checkbox.checked = selectedFiles.includes(item.name); // Pre-select if in selectedFiles
+                    checkbox.value = itemPath; // Store the relative path
+                    checkbox.checked = selectedFiles.includes(itemPath); // Pre-select if in selectedFiles
                     checkbox.addEventListener('click', (e) => {
                         e.stopPropagation(); // Prevent the folder from collapsing
                     });
@@ -53,7 +57,7 @@
 
                     const folderContents = document.createElement('div');
                     folderContents.className = 'folder-contents';
-                    createFileExplorer(item.children, folderContents, selectedFiles);
+                    createFileExplorer(item.children, folderContents, selectedFiles, itemPath);
                     element.appendChild(folderContents);
                 }
 

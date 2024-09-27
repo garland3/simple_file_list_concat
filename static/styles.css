@@ -19,12 +19,12 @@ header {
     background-color: var(--primary-color);
     color: white;
     text-align: center;
-    padding: 1rem;
-    margin-bottom: 2rem;
+    padding: 0.5rem; /* Reduced from 1rem to 0.5rem */
+    margin-bottom: 1rem; /* Reduced from 2rem to 1rem */
 }
 
 .container {
-    max-width: 800px;
+    max-width: 90%; /* Increased from 800px to 90% of the viewport width */
     margin: 0 auto;
     padding: 20px;
 }
@@ -35,6 +35,7 @@ header {
     padding: 20px;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 20px; /* Added margin to create space around the file explorer */
 }
 
 h1, h2 {
@@ -77,12 +78,15 @@ h1, h2 {
 
 textarea {
     width: 100%;
-    min-height: 400px;
+    min-height: 70vh; /* Changed from 600px to 70% of the viewport height */
     padding: 1rem;
     font-size: 1rem;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     resize: vertical;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: scroll;
 }
 
 .primary-button, .secondary-button {
@@ -110,6 +114,13 @@ textarea {
 
 .form-actions {
     display: flex;
+    justify-content: center; /* Center the button horizontally */
     gap: 1rem;
     margin-top: 1rem;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
 }
