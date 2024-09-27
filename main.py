@@ -87,15 +87,22 @@ async def update_base_dir(new_base_dir: str = Form(...)):
 
 @app.post("/concatenate", response_class=HTMLResponse)
 async def concatenate_files(request: Request, selected_files: list = Form(...)):
+    print("Concatenating files:")
+    print(selected_files)  # This should now be a list of selected files
+    print("BASE_DIR:", BASE_DIR)
     content = ""
     for file in selected_files:
         file_path = BASE_DIR / file
+        print(f"Processing file: {file}")
         if file_path.is_file():
+            print(f"File found: {file}")
             content += f"--- {file} ---\n"
             try:
                 content += file_path.read_text()
+                print(f"Successfully read file: {file}")
             except Exception as e:
                 content += f"Error reading file: {str(e)}\n"
+                print(f"Error reading file: {file}, Error: {str(e)}")
             content += "\n\n"
     return templates.TemplateResponse("result.html", {
         "request": request,

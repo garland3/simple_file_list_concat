@@ -23,7 +23,7 @@
             return fileStructure;
         }
 
-        function createFileExplorer(structure, parentElement) {
+        function createFileExplorer(structure, parentElement, selectedFiles) {
             structure.forEach(item => {
                 const element = document.createElement('div');
                 element.textContent = item.name;
@@ -33,6 +33,7 @@
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.value = item.name; // Store the file name
+                    checkbox.checked = selectedFiles.includes(item.name); // Pre-select if in selectedFiles
                     checkbox.addEventListener('click', (e) => {
                         e.stopPropagation(); // Prevent the folder from collapsing
                     });
@@ -47,7 +48,7 @@
 
                     const folderContents = document.createElement('div');
                     folderContents.className = 'folder-contents';
-                    createFileExplorer(item.children, folderContents);
+                    createFileExplorer(item.children, folderContents, selectedFiles);
                     element.appendChild(folderContents);
                 }
 
@@ -58,22 +59,24 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const fileExplorer = document.getElementById('file-explorer');
             const fileStructure = await fetchFileStructure();
-            createFileExplorer(fileStructure, fileExplorer);
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedFiles = urlParams.get('selected') ? urlParams.get('selected').split(',') : [];
+            createFileExplorer(fileStructure, fileExplorer, selectedFiles);
 
             document.getElementById('concatenate-btn').addEventListener('click', () => {
                 const selectedFiles = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
                     .map(checkbox => checkbox.value);
                 if (selectedFiles.length > 0) {
+                    // Send selected files as an array
+                    const formData = new FormData();
+                    selectedFiles.forEach(file => formData.append('selected_files', file));
+            
                     fetch('/concatenate', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({ selected_files: selectedFiles })
+                        body: formData
                     })
                     .then(response => response.text())
                     .then(data => {
-                        // Redirect to the result page or display the result
                         document.open();
                         document.write(data);
                         document.close();
