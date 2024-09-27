@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concatenated Files</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Concatenated Content</h1>
+    </header>
+    <div class="container">
+        <main>
+            <section class="result-section">
+                <textarea rows="20" readonly>{{ content }}</textarea>
+            </section>
+            <div class="form-actions">
+                <a href="/?selected={{ selected_files }}" class="primary-button">Back to File Selection</a>
+                <button id="copy-content" class="secondary-button">Copy to Clipboard</button>
+            </div>
+        </main>
+    </div>
+    <script src="{{ url_for('static', path='/script.js') }}"></script>
+</body>
+</html>

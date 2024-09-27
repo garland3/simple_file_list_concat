@@ -1,0 +1,13 @@
+# Application settings
+
+# Maximum number of files to display
+max_files = 500
+
+# Maximum depth for recursive file search
+max_depth = 3
+
+# Base directory for file search (leave empty to use the default)
+base_dir = "/home/garlan/git/agents/concat_code_server"
+
+# File extensions to ignore (comma-separated)
+ignore_extensions = [".jpg", ".jpeg", ".png", ".gif", ".json", ".pyc"]

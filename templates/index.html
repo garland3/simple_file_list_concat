@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Explorer</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>File Explorer</h1>
+    </header>
+    <div class="file-explorer" id="file-explorer">
+        <h2>Select Files to Concatenate</h2>
+        <!-- File structure will be populated here by JavaScript -->
+    </div>
+    <button id="concatenate-btn" class="primary-button">Concatenate Selected Files</button>
+
+    <script>
+        async function fetchFileStructure() {
+            const response = await fetch('/file_structure');
+            const fileStructure = await response.json();
+            return fileStructure;
+        }
+
+        function createFileExplorer(structure, parentElement) {
+            structure.forEach(item => {
+                const element = document.createElement('div');
+                element.textContent = item.name;
+                element.className = item.type;
+
+                if (item.type === 'file') {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = item.name; // Store the file name
+                    checkbox.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent the folder from collapsing
+                    });
+                    element.prepend(checkbox);
+                }
+
+                if (item.type === 'folder') {
+                    element.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        element.classList.toggle('open');
+                    });
+
+                    const folderContents = document.createElement('div');
+                    folderContents.className = 'folder-contents';
+                    createFileExplorer(item.children, folderContents);
+                    element.appendChild(folderContents);
+                }
+
+                parentElement.appendChild(element);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const fileExplorer = document.getElementById('file-explorer');
+            const fileStructure = await fetchFileStructure();
+            createFileExplorer(fileStructure, fileExplorer);
+
+            document.getElementById('concatenate-btn').addEventListener('click', () => {
+                const selectedFiles = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(checkbox => checkbox.value);
+                if (selectedFiles.length > 0) {
+                    fetch('/concatenate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({ selected_files: selectedFiles })
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        // Redirect to the result page or display the result
+                        document.open();
+                        document.write(data);
+                        document.close();
+                    });
+                } else {
+                    alert('Please select at least one file to concatenate.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
