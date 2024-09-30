@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Explorer</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
 </head>
+
 <body>
     <header>
         <h1>File Explorer</h1>
@@ -16,6 +18,7 @@
     </div>
     <div class="button-container">
         <button id="concatenate-btn" class="primary-button">Concatenate Selected Files</button>
+        <button id="concat-v2-btn" class="secondary-button">Concat V2</button> <!-- New Concat V2 Button -->
     </div>
 
     <script>
@@ -72,29 +75,43 @@
             const selectedFiles = urlParams.get('selected') ? urlParams.get('selected').split(',') : [];
             createFileExplorer(fileStructure, fileExplorer, selectedFiles);
 
-            document.getElementById('concatenate-btn').addEventListener('click', () => {
+            // Function to handle concatenation
+            function handleConcatenation(version) {
                 const selectedFiles = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
                     .map(checkbox => checkbox.value);
                 if (selectedFiles.length > 0) {
                     // Send selected files as an array
                     const formData = new FormData();
                     selectedFiles.forEach(file => formData.append('selected_files', file));
-            
+                    formData.append('version', version);
+
                     fetch('/concatenate', {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.text())
-                    .then(data => {
-                        document.open();
-                        document.write(data);
-                        document.close();
-                    });
+                        .then(response => response.text())
+                        .then(data => {
+                            document.open();
+                            document.write(data);
+                            document.close();
+                        });
                 } else {
                     alert('Please select at least one file to concatenate.');
                 }
+            }
+
+            // Add event listener for concatenate-btn
+            document.getElementById('concatenate-btn').addEventListener('click', () => {
+                handleConcatenation(1);
             });
+
+            // Add event listener for concat-v2-btn
+            document.getElementById('concat-v2-btn').addEventListener('click', () => {
+                handleConcatenation(2);
+            });
+
         });
     </script>
 </body>
+
 </html>

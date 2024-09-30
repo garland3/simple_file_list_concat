@@ -22,6 +22,29 @@ document.addEventListener('DOMContentLoaded', function() {
     if (copyContentBtn) {
         copyContentBtn.addEventListener('click', copyToClipboard);
     }
+
+    document.getElementById('concat-v2-btn').addEventListener('click', () => {
+        const selectedFiles = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(checkbox => checkbox.value);
+        if (selectedFiles.length > 0) {
+            // Send selected files as an array and navigate to Concat2
+            const formData = new FormData();
+            selectedFiles.forEach(file => formData.append('selected_files', file));
+
+            fetch('/concatenate_v2', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.open();
+                document.write(data);
+                document.close();
+            });
+        } else {
+            alert('Please select at least one file to concatenate.');
+        }
+    });
 });
 
 function toggleFolder(id) {

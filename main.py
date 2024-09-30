@@ -5,6 +5,8 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 import os
 import toml
+import requests  # Add this import for making HTTP requests
+import json
 
 app = FastAPI()
 
@@ -86,9 +88,11 @@ async def update_base_dir(new_base_dir: str = Form(...)):
     except Exception as e:
         error_message = f"Error updating base directory: {str(e)}"
         return RedirectResponse(url=f"/?error={error_message}", status_code=303)
-
 @app.post("/concatenate", response_class=HTMLResponse)
-async def concatenate_files(request: Request, selected_files: list = Form(...)):
+async def concatenate_files(request: Request,
+                           selected_files: list = Form(...),
+                             version_number: str = Form(...)):
+    print("Version number from form:", version_number)
     content = ""
     print("Starting to concatenate files...")
     print(selected_files)
@@ -111,8 +115,53 @@ async def concatenate_files(request: Request, selected_files: list = Form(...)):
     return templates.TemplateResponse("result.html", {
         "request": request,
         "content": content,
-        "selected_files": ','.join(selected_files)
+        "selected_files": ','.join(selected_files),
+        "version_number": version_number
     })
+
+# This is a test for code 200
+@app.get("/test_endpoint")
+async def test_endpoint():
+    return {"message": "Endpoint is working"}
+
+
+# Route to Process Q&A in Concat V2
+@app.post("/process_qa", response_class=JSONResponse)
+async def process_qa(request: Request):
+    data = await request.json()
+    api_key = data.get("api_key")
+    model = data.get("model")
+    question = data.get("question")
+    content = data.get("content")
+
+    if not api_key or not model or not question:
+        return JSONResponse({"error": "API key, model, and question are required."}, status_code=400)
+
+    # Prepare the payload for GROQ API
+    payload = {
+        "messages": [
+            {"role": "user", "content": f"{question}\n\nConcatenated Code:\n{content}"}
+        ],
+        "model": model
+    }
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, data=json.dumps(payload))
+        response.raise_for_status()
+        response_data = response.json()
+        answer = response_data.get("choices")[0].get("message").get("content")
+        return JSONResponse({"response": answer})
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+        return JSONResponse({"error": f"HTTP error occurred: {http_err}"}, status_code=500)
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+        return JSONResponse({"error": f"An error occurred: {err}"}, status_code=500)
 
 if __name__ == "__main__":
     import uvicorn

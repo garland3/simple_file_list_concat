@@ -124,3 +124,60 @@ textarea {
     justify-content: center;
     margin-top: 20px;
 }
+
+.qa-section {
+    margin-top: 2rem;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: #fafafa;
+}
+
+.qa-section h2 {
+    margin-bottom: 1rem;
+}
+
+.qa-section textarea {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: vertical;
+    margin-bottom: 1rem;
+}
+
+.qa-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#api-key {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+#model-select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.qa-response h3 {
+    margin-bottom: 0.5rem;
+}
+
+.qa-response textarea {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: vertical;
+}
