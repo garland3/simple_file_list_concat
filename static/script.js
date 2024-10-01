@@ -126,6 +126,12 @@ async function fetchFileStructure() {
 /**
  * Create the file explorer in the DOM.
  */
+/**
+ * Create the file explorer in the DOM.
+ */
+/**
+ * Create the file explorer in the DOM.
+ */
 function createFileExplorer(structure, parentElement, currentPath = '') {
     const ul = document.createElement('ul');
     structure.forEach(item => {
@@ -151,7 +157,16 @@ function createFileExplorer(structure, parentElement, currentPath = '') {
             li.appendChild(span);
 
             if (item.children && item.children.length > 0) {
-                createFileExplorer(item.children, li, item.path);
+                const nestedUl = createFileExplorer(item.children, li, item.path);
+                nestedUl.style.display = 'none'; // Initially hide the child items
+                li.appendChild(nestedUl);
+
+                // Add click event listener for folder toggle
+                span.addEventListener('click', () => {
+                    const isOpen = nestedUl.style.display === 'block';
+                    nestedUl.style.display = isOpen ? 'none' : 'block'; // Toggle display
+                    span.classList.toggle('open', !isOpen); // Optionally add 'open' class for styling
+                });
             }
         } else if (item.type === 'error') {
             li.textContent = item.name;
@@ -161,7 +176,10 @@ function createFileExplorer(structure, parentElement, currentPath = '') {
         ul.appendChild(li);
     });
     parentElement.appendChild(ul);
+    return ul; // Return the created ul element
 }
+
+
 
 /**
  * Set checkboxes based on selectedFiles array.
