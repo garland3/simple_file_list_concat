@@ -1,26 +1,55 @@
+<!-- templates/result.html -->
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concatenated Files</title>
+    <title>Concatenation Results</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
 </head>
+
 <body>
     <header>
-        <h1>Concatenated Content</h1>
+        <h1>Concatenation Results</h1>
     </header>
-    <div class="container">
-        <main>
-            <section class="result-section">
-                <textarea rows="20" readonly>{{ content }}</textarea>
-            </section>
-            <div class="form-actions">
-                <a href="/?selected={{ selected_files }}" class="primary-button">Back to File Selection</a>
-                <button id="copy-content" class="secondary-button">Copy to Clipboard</button>
-            </div>
-        </main>
+
+    <div class="results-container">
+        <h2>Selected Files:</h2>
+        <ul>
+            {% for file in selected_files %}
+            <li>{{ file }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Concatenated Content:</h2>
+        <textarea readonly>{{ content }}</textarea>
     </div>
-    <script src="{{ url_for('static', path='/script.js') }}"></script>
+
+    <div class="button-container">
+        <!-- Form-based Back Button -->
+        <form action="/" method="get" style="display: inline;">
+            <button type="submit" class="secondary-button">Back to File Explorer</button>
+        </form>
+
+        <button onclick="copyToClipboard()" class="primary-button">Copy Content</button>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const textarea = document.querySelector('textarea');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                document.execCommand('copy');
+                alert('Content copied to clipboard!');
+            } catch (err) {
+                alert('Failed to copy content.');
+            }
+        }
+    </script>
 </body>
+
 </html>

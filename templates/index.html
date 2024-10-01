@@ -1,3 +1,5 @@
+<!-- templates/index.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,106 +14,44 @@
     <header>
         <h1>File Explorer</h1>
     </header>
-    <div class="file-explorer" id="file-explorer">
-        <h2>Select Files to Concatenate</h2>
-        <!-- File structure will be populated here by JavaScript -->
+
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
     </div>
+    {% endif %}
+
+    <div class="folder-settings">
+        <form action="/update_base_dir" method="post">
+            <label for="base-folder">Base Folder:</label>
+            <input type="text" id="base-folder" name="new_base_dir" value="{{ BASE_DIR }}" required />
+            <button type="submit">Update Base Folder</button>
+        </form>
+    </div>
+
+    <div class="file-explorer-container">
+        <h2>Select Files to Concatenate</h2>
+        <div class="button-group">
+            <button id="select-all" class="secondary-button">Select All</button>
+            <button id="deselect-all" class="secondary-button">Deselect All</button>
+        </div>
+        <div class="file-explorer" id="file-explorer">
+            <!-- File structure will be populated here by JavaScript -->
+        </div>
+    </div>
+
+    <div class="options">
+        <label for="include-line-numbers">
+            <input type="checkbox" id="include-line-numbers" name="include_line_numbers" />
+            Include Line Numbers
+        </label>
+    </div>
+
     <div class="button-container">
         <button id="concatenate-btn" class="primary-button">Concatenate Selected Files</button>
-        <button id="concat-v2-btn" class="secondary-button">Concat V2</button> <!-- New Concat V2 Button -->
     </div>
 
-    <script>
-        async function fetchFileStructure() {
-            const response = await fetch('/file_structure');
-            const fileStructure = await response.json();
-            return fileStructure;
-        }
-
-        function createFileExplorer(structure, parentElement, selectedFiles, currentPath = '') {
-            structure.forEach(item => {
-                const element = document.createElement('div');
-                element.textContent = item.name;
-                element.className = item.type;
-
-                const itemPath = currentPath ? `${currentPath}/${item.name}` : item.name;
-
-                if (item.type === 'file') {
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.value = itemPath; // Store the relative path
-                    checkbox.checked = selectedFiles.includes(itemPath); // Pre-select if in selectedFiles
-                    checkbox.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent the folder from collapsing
-                    });
-                    element.prepend(checkbox);
-                    // Add click event to toggle checkbox when file name is clicked
-                    element.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent the folder from collapsing
-                        checkbox.checked = !checkbox.checked; // Toggle checkbox
-                    });
-                }
-
-                if (item.type === 'folder') {
-                    element.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        element.classList.toggle('open');
-                    });
-
-                    const folderContents = document.createElement('div');
-                    folderContents.className = 'folder-contents';
-                    createFileExplorer(item.children, folderContents, selectedFiles, itemPath);
-                    element.appendChild(folderContents);
-                }
-
-                parentElement.appendChild(element);
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const fileExplorer = document.getElementById('file-explorer');
-            const fileStructure = await fetchFileStructure();
-            const urlParams = new URLSearchParams(window.location.search);
-            const selectedFiles = urlParams.get('selected') ? urlParams.get('selected').split(',') : [];
-            createFileExplorer(fileStructure, fileExplorer, selectedFiles);
-
-            // Function to handle concatenation
-            function handleConcatenation(version) {
-                const selectedFiles = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-                    .map(checkbox => checkbox.value);
-                if (selectedFiles.length > 0) {
-                    // Send selected files as an array
-                    const formData = new FormData();
-                    selectedFiles.forEach(file => formData.append('selected_files', file));
-                    formData.append('version', version);
-
-                    fetch('/concatenate', {
-                        method: 'POST',
-                        body: formData
-                    })
-                        .then(response => response.text())
-                        .then(data => {
-                            document.open();
-                            document.write(data);
-                            document.close();
-                        });
-                } else {
-                    alert('Please select at least one file to concatenate.');
-                }
-            }
-
-            // Add event listener for concatenate-btn
-            document.getElementById('concatenate-btn').addEventListener('click', () => {
-                handleConcatenation(1);
-            });
-
-            // Add event listener for concat-v2-btn
-            document.getElementById('concat-v2-btn').addEventListener('click', () => {
-                handleConcatenation(2);
-            });
-
-        });
-    </script>
+    <script src="{{ url_for('static', path='/script.js') }}"></script>
 </body>
 
 </html>

@@ -8,4 +8,4 @@ then
 fi
 
 # Run the FastAPI application with auto-reloading
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn main:app --host 0.0.0.0 --port 8002 --reload
