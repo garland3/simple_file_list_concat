@@ -253,3 +253,40 @@ function expandFoldersWithSelectedFiles(parentElement) {
         expandFoldersContainingFile(parentElement, filePath);
     });
 }
+
+const concatenateWithAI = document.getElementById('concatenate-with-ai-btn');
+if (concatenateWithAI) {
+    concatenateWithAI.addEventListener('click', () => {
+        const selectedFiles = getSelectedFiles();
+        const includeLineNumbers = document.getElementById('include-line-numbers').checked;
+
+        if (selectedFiles.length > 0) {
+            // Save selected files to local storage
+            updateLocalStorage(selectedFiles);
+
+            // Create a form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/concat_with_ai';
+
+            selectedFiles.forEach(file => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'selected_files';
+                input.value = file;
+                form.appendChild(input);
+            });
+
+            const lineNumberInput = document.createElement('input');
+            lineNumberInput.type = 'hidden';
+            lineNumberInput.name = 'include_line_numbers';
+            lineNumberInput.value = includeLineNumbers;
+            form.appendChild(lineNumberInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        } else {
+            alert('Please select at least one file to concatenate.');
+        }
+    });
+}

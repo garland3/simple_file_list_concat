@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Review UI (Vanilla)</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .top-panel {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #000;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+        }
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .file-box {
+            border: 2px solid #000;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+        }
+        .file-box.ai-changes {
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+        }
+        .file-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .code-area {
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            font-family: monospace;
+            padding: 10px;
+            resize: none;
+            white-space: pre;
+            overflow: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        #ai-query {
+            width: calc(100% - 22px);
+            height: 50px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            resize: none;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .accept-button {
+            margin-top: 10px;
+            align-self: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-panel">
+            <textarea id="ai-query" placeholder="Ask the AI to change the code here"></textarea>
+            <button onclick="askAI()">Ask AI</button>
+        </div>
+        <div class="main-content">
+            <div class="panel" id="original-panel"></div>
+            <div class="panel" id="ai-panel"></div>
+        </div>
+    </div>
+    <script>
+        let fileEditors = [];
+
+        function addFile(fileName, content, isAI = false) {
+            const panel = document.getElementById(isAI ? 'ai-panel' : 'original-panel');
+            const fileBox = document.createElement('div');
+            fileBox.className = `file-box ${isAI ? 'ai-changes' : ''}`;
+
+            const fileNameElement = document.createElement('div');
+            fileNameElement.className = 'file-name';
+            fileNameElement.textContent = fileName;
+            fileBox.appendChild(fileNameElement);
+
+            const codeArea = document.createElement('textarea');
+            codeArea.className = 'code-area';
+            codeArea.value = content;
+            codeArea.readOnly = isAI;
+            fileBox.appendChild(codeArea);
+
+            if (isAI) {
+                const acceptButton = document.createElement('button');
+                acceptButton.textContent = 'Accept Changes';
+                acceptButton.className = 'accept-button';
+                acceptButton.onclick = () => acceptChanges(fileEditors.length - 1);
+                fileBox.appendChild(acceptButton);
+            }
+
+            panel.appendChild(fileBox);
+
+            if (!isAI) {
+                fileEditors.push({
+                    original: codeArea,
+                    ai: null
+                });
+            } else {
+                fileEditors[fileEditors.length - 1].ai = codeArea;
+            }
+        }
+
+        function askAI() {
+            const query = document.getElementById('ai-query').value;
+
+            fileEditors.forEach(({original, ai}) => {
+                let originalCode = original.value;
+                let modifiedCode = originalCode.replace(/function/g, 'async function');
+                ai.value = modifiedCode;
+            });
+        }
+
+        function acceptChanges(index) {
+            const { original, ai } = fileEditors[index];
+            original.value = ai.value;
+            ai.value = '';
+        }
+
+        // Populate files from server data
+        const fileData = {{ file_data | tojson }};
+        fileData.forEach(file => {
+            addFile(file[0], file[1]);
+            addFile(`AI changes for ${file[0]}`, '', true);
+        });
+    </script>
+</body>
+</html>
+    <script>
+        let fileEditors = [];
+
+        function addFile(fileName, content, isAI = false) {
+            const panel = document.getElementById(isAI ? 'ai-panel' : 'original-panel');
+            const fileBox = document.createElement('div');
+            fileBox.className = `file-box ${isAI ? 'ai-changes' : ''}`;
+
+            const fileNameElement = document.createElement('div');
+            fileNameElement.className = 'file-name';
+            fileNameElement.textContent = fileName;
+            fileBox.appendChild(fileNameElement);
+
+            const codeArea = document.createElement('textarea');
+            codeArea.className = 'code-area';
+            codeArea.value = content;
+            codeArea.readOnly = isAI;
+            fileBox.appendChild(codeArea);
+
+            if (isAI) {
+                const acceptButton = document.createElement('button');
+                acceptButton.textContent = 'Accept Changes';
+                acceptButton.className = 'accept-button';
+                acceptButton.onclick = () => acceptChanges(fileEditors.length - 1);
+                fileBox.appendChild(acceptButton);
+            }
+
+            panel.appendChild(fileBox);
+
+            if (!isAI) {
+                fileEditors.push({
+                    original: codeArea,
+                    ai: null
+                });
+            } else {
+                fileEditors[fileEditors.length - 1].ai = codeArea;
+            }
+        }
+
+        function askAI() {
+            const query = document.getElementById('ai-query').value;
+
+            fileEditors.forEach(({original, ai}) => {
+                let originalCode = original.value;
+                let modifiedCode = originalCode.replace(/function/g, 'async function');
+                ai.value = modifiedCode;
+            });
+        }
+
+        function acceptChanges(index) {
+            const { original, ai } = fileEditors[index];
+            original.value = ai.value;
+            ai.value = '';
+        }
+
+        // Populate files from server data
+        const fileData = {{ file_data | tojson }};
+        fileData.forEach(file => {
+            addFile(file[0], file[1]);
+            addFile(`AI changes for ${file[0]}`, '', true);
+        });
+    </script>

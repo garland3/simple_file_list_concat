@@ -1,10 +1,11 @@
+
 <!-- templates/index.html -->
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Explorer</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
@@ -49,6 +50,7 @@
 
     <div class="button-container">
         <button id="concatenate-btn" class="primary-button">Concatenate Selected Files</button>
+        <button id="concatenate-with-ai-btn" class="primary-button">Concatenate with AI</button>
     </div>
 
     <script src="{{ url_for('static', path='/script.js') }}"></script>

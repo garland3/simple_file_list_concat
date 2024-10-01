@@ -150,6 +150,34 @@ async def concatenate_files(request: Request,
         "include_line_numbers": include_line_numbers
     })
 
+@app.post("/concat_with_ai", response_class=HTMLResponse)
+async def concat_with_ai(request: Request,
+                          selected_files: list = Form(...)):
+    if not selected_files:
+        error_message = "No files selected for concatenation."
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "error": error_message
+        })
+
+    file_data = []
+    for file in selected_files:
+        file_path = BASE_DIR / file
+        if file_path.is_file():
+            file_data.append((file_path.name, file_path.read_text(encoding='utf-8', errors='replace')))
+        else:
+            error_message = f"File not found: {file}"
+            return templates.TemplateResponse("index.html", {
+                "request": request,
+                "error": error_message
+            })
+
+    return templates.TemplateResponse("results_ai.html", {
+        "request": request,
+        "file_data": file_data
+    })
+
+
 
 @app.get("/test_endpoint")
 async def test_endpoint():
