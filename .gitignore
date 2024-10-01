@@ -1,0 +1,49 @@
+
+# Start
+# Ignore bytecode files
+*.py[cod]
+
+# Ignore .egg-info directories
+*.egg-info
+
+# Ignore pip and easy_install build directories
+build/
+eggs/
+
+# Ignore installer and packaging files
+/dist/
+/dist.gz
+setup.pyc
+
+# Ignore distribution files
+wheelhouse/
+.tox
+.coverage
+venv
+env
+build/
+
+# Ignore .DS_Store files
+.DS_Store
+
+# Ignore IDE config files
+.vscode
+pycharm-debug.py
+.idea
+
+# Ignore Python2 byte compiled files
+*.pyc
+
+# Ignore Python3 byte compiled files
+__pycache__/
+
+# Ignore logs
+logs
+
+# Ignore virtual environment directory
+env
+venv
+*.env
+
+# Ignore python- prefix for a python script python-*.py
+python-*.py[cod]

@@ -152,7 +152,8 @@ async def concatenate_files(request: Request,
 
 @app.post("/concat_with_ai", response_class=HTMLResponse)
 async def concat_with_ai(request: Request,
-                          selected_files: list = Form(...)):
+                          selected_files: list = Form(...),
+                          include_line_numbers: bool = Form(False)):
     if not selected_files:
         error_message = "No files selected for concatenation."
         return templates.TemplateResponse("index.html", {
